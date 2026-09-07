@@ -16,11 +16,8 @@ effects and all of them need it:
 
 ## Running it
 
-You need a free OMDb key from https://www.omdbapi.com/apikey.aspx
-
 ```bash
 npm install
-cp .env.example .env.local   # put your key in it
 npm start
 ```
 
@@ -48,7 +45,6 @@ Plain CSS throughout, no framework.
   nothing at all.
 - OMDb sends runtime as `"148 min"`. Storing the string made the average come
   out as text glued together instead of a number.
-- The API key was sitting in the source. It is in `.env.local` now.
 
 ## Not done yet
 

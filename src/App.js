@@ -4,12 +4,12 @@ import StarRating from "./StarRating";
 const average = (arr) =>
   arr.reduce((acc, cur, i, arr) => acc + cur / arr.length, 0);
 
-const KEY = process.env.REACT_APP_OMDB_KEY;
+const KEY = "de5f4217";
 
 export default function App() {
   const [movies, setMovies] = useState([]);
   const [watched, setWatched] = useState([]);
-  const [query, setQuery] = useState("");
+  const [query, setQuery] = useState("you");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
   const [selectedId, setSelectedId] = useState(null);
@@ -33,9 +33,6 @@ export default function App() {
 
   useEffect(
     function () {
-      // Every keystroke fires a new request. Without aborting the old one, a
-      // slow response can land last and overwrite the results for what the
-      // user actually typed.
       const controller = new AbortController();
 
       async function fetchMovies() {
@@ -45,7 +42,7 @@ export default function App() {
 
           const res = await fetch(
             `https://www.omdbapi.com/?apikey=${KEY}&s=${query}`,
-            { signal: controller.signal }
+            { signal: controller.signal },
           );
 
           if (!res.ok) throw new Error("Could not reach the movie database");
@@ -56,7 +53,6 @@ export default function App() {
           setMovies(data.Search);
           setError("");
         } catch (err) {
-          // Aborting rejects the promise too, but that one is on purpose.
           if (err.name !== "AbortError") setError(err.message);
         } finally {
           setIsLoading(false);
@@ -76,7 +72,7 @@ export default function App() {
         controller.abort();
       };
     },
-    [query]
+    [query],
   );
 
   return (
@@ -170,7 +166,7 @@ function Search({ query, setQuery }) {
       document.addEventListener("keydown", callback);
       return () => document.removeEventListener("keydown", callback);
     },
-    [setQuery]
+    [setQuery],
   );
 
   return (
@@ -241,7 +237,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
 
   const isWatched = watched.some((movie) => movie.imdbID === selectedId);
   const watchedUserRating = watched.find(
-    (movie) => movie.imdbID === selectedId
+    (movie) => movie.imdbID === selectedId,
   )?.userRating;
 
   const {
@@ -278,7 +274,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
         setIsLoading(true);
 
         const res = await fetch(
-          `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`
+          `https://www.omdbapi.com/?apikey=${KEY}&i=${selectedId}`,
         );
         const data = await res.json();
 
@@ -288,7 +284,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
 
       getMovieDetails();
     },
-    [selectedId]
+    [selectedId],
   );
 
   useEffect(
@@ -302,7 +298,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
         document.title = "Filmroll";
       };
     },
-    [title]
+    [title],
   );
 
   useEffect(
@@ -318,7 +314,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
         document.removeEventListener("keydown", callback);
       };
     },
-    [onCloseMovie]
+    [onCloseMovie],
   );
 
   return (
