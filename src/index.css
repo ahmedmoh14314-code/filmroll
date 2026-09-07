@@ -26,7 +26,7 @@ body {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
   color: var(--paper);
   background-color: var(--ink);
-  padding: 0 0 2.4rem;
+  padding: 0 0 1.2rem;
   -webkit-font-smoothing: antialiased;
 }
 
@@ -129,9 +129,11 @@ body {
 /* ── Panels ──────────────────────────────────────────────── */
 
 .main {
-  margin-top: 3.2rem;
+  margin-top: 1.6rem;
   padding: 0 4rem;
-  height: calc(100vh - 8.4rem - 2.4rem - 3.2rem - 4.8rem);
+  /* Fill what is left under the nav: 10.8rem of strip, this margin, and the
+     1.2rem of body padding at the bottom. */
+  height: calc(100vh - 10.8rem - 1.6rem - 1.2rem);
   display: flex;
   gap: 2.4rem;
   justify-content: center;
@@ -445,7 +447,7 @@ body {
   .box {
     width: 100%;
     max-width: 44rem;
-    max-height: 60vh;
+    max-height: 65vh;
   }
 }
 
