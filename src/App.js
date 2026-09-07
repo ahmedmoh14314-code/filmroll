@@ -142,10 +142,7 @@ function NavBar({ children }) {
 function Logo() {
   return (
     <div className="logo">
-      <span role="img" aria-label="popcorn">
-        🍿
-      </span>
-      <h1>usePopcorn</h1>
+      <h1>Filmroll</h1>
     </div>
   );
 }
@@ -231,10 +228,7 @@ function Movie({ movie, onSelectMovie }) {
       <h3>{movie.Title}</h3>
 
       <div>
-        <p>
-          <span>🗓</span>
-          <span>{movie.Year}</span>
-        </p>
+        <p>{movie.Year}</p>
       </div>
     </li>
   );
@@ -305,7 +299,7 @@ function MovieDetails({ selectedId, watched, onCloseMovie, onAddWatched }) {
 
       // Put the old title back when the details close.
       return function () {
-        document.title = "usePopcorn";
+        document.title = "Filmroll";
       };
     },
     [title]
@@ -397,8 +391,7 @@ function WatchedSummary({ watched }) {
 
       <div>
         <p>
-          <span>#️⃣</span>
-          <span>{watched.length} movies</span>
+          {watched.length} {watched.length === 1 ? "movie" : "movies"}
         </p>
 
         <p>
