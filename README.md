@@ -46,21 +46,23 @@ Plain CSS throughout, no framework.
 - OMDb sends runtime as `"148 min"`. Storing the string made the average come
   out as text glued together instead of a number.
 
-## Not done yet
+## What I would change
 
-- The watched list is lost on refresh — it should go in `localStorage`.
-- The fetch logic in `App` is long enough to be its own hook.
-- No tests.
+- The watched list is lost on refresh. It belongs in `localStorage`.
+- The fetch logic in `App` is long enough to be its own `useMovies` hook.
+- The details request has no `catch`, so a dropped connection leaves the
+  spinner running with nothing to explain it.
+- There are no tests.
 
-## Why it still runs on Create React App
+The list of bugs above is the part of this repo worth reading. I wrote the
+code, thought it worked, and only found them by going back through it — the
+star rating had been dead the whole time and I had not noticed, because I had
+never tried adding a film after building the button.
 
-Because that is what I learned it on, and moving it to Vite would hide the
-thing this repo is actually for.
+It still runs on Create React App because that is what I built it on, and the
+commit history from the first `create-react-app` onward is more useful intact
+than ported.
 
-I read this project the way you read a dated notebook. The commit history runs
-from the first `create-react-app` to the rewrite, and the two sections above —
-the bugs I only found on a second pass, and the work still outstanding — are
-the point of keeping it public. Porting it to a newer toolchain would leave a
-tidier repo and a smaller record.
+---
 
-I work with current React tooling. This is where I started, kept as it was.
+An early React project of mine. I build with Vite now.
