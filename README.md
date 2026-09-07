@@ -52,6 +52,15 @@ Plain CSS throughout, no framework.
 - The fetch logic in `App` is long enough to be its own hook.
 - No tests.
 
----
+## Why it still runs on Create React App
 
-A learning project from my React practice. Built with Create React App.
+Because that is what I learned it on, and moving it to Vite would hide the
+thing this repo is actually for.
+
+I read this project the way you read a dated notebook. The commit history runs
+from the first `create-react-app` to the rewrite, and the two sections above —
+the bugs I only found on a second pass, and the work still outstanding — are
+the point of keeping it public. Porting it to a newer toolchain would leave a
+tidier repo and a smaller record.
+
+I work with current React tooling. This is where I started, kept as it was.
