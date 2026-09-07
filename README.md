@@ -1,70 +1,103 @@
-# Getting Started with Create React App
+# usePopcorn
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+Search movies from the OMDb API, rate the ones you have seen, and keep a list
+with your average rating and total watch time.
 
-## Available Scripts
+![Search results next to the details of a movie being rated](docs/screenshot.png)
 
-In the project directory, you can run:
+This is the project where `useEffect` finally made sense to me. Not the "run
+some code after render" part — the cleanup part, and why it exists.
 
-### `npm start`
+## Running it
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+You need your own OMDb key, it is free:
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+```bash
+npm install
+cp .env.example .env.local   # then put your key in it
+npm start
+```
 
-### `npm test`
+Get the key here: https://www.omdbapi.com/apikey.aspx
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+## The three effects, and why each one cleans up
 
-### `npm run build`
+**Search.** Every letter you type fires a request. Type "inception" and you
+have nine requests racing each other. Whichever one answers last wins, and
+that is not necessarily the one for what is now in the box.
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+So the effect creates an `AbortController`, passes its signal to `fetch`, and
+cancels the previous request in the cleanup:
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```js
+const controller = new AbortController();
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+// ...fetch with { signal: controller.signal }
 
-### `npm run eject`
+return function () {
+  controller.abort();
+};
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+Aborting makes `fetch` reject, which lands in `catch` — but that rejection is
+me cancelling on purpose, not a real failure, so it is filtered out:
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```js
+if (err.name !== "AbortError") setError(err.message);
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+**Document title.** Opening a movie writes its name into the browser tab. The
+cleanup puts `usePopcorn` back, so closing the details does not leave a stale
+title behind.
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+**Escape key.** The details pane listens on `document` for Escape. Without
+removing the listener on cleanup, every movie you open stacks another one, and
+after browsing ten movies a single Escape press fires ten handlers.
 
-## Learn More
+All three are the same lesson: an effect that reaches outside React has to be
+able to undo itself.
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+## Other things worth pointing out
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+- **The runtime has to be parsed.** OMDb sends `"148 min"` as a string. Adding
+  that straight to state made the average come out as `"148 min169 min"`, so
+  the number is split off before it is stored.
+- **The API key is in `.env.local`, not the code.** `.env.local` is gitignored;
+  `.env.example` shows the shape without the value.
+- **State lives in `App`.** `watched` is needed by the summary, the list, and
+  the details pane (to show "you already rated this"), so it sits in the
+  closest common parent and comes down as props.
+- **`Box` uses `children`.** Both panels are the same collapsible box with
+  different contents, so the box knows nothing about what is inside it.
 
-### Code Splitting
+## Bugs I fixed after first writing it
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+Leaving these here because they were the useful part:
 
-### Analyzing the Bundle Size
+- `const [Error, setError] = useState("")` shadowed the built-in `Error`, so
+  `throw new Error(...)` inside the same scope threw a `TypeError` instead of
+  the message I wanted. Renamed to `error`.
+- `MovieDetails` accepted `onAddWatched` but never called it, so the star
+  rating did nothing and nothing could be added to the list. Wired up.
+- The details request used `http://`, which gets blocked as mixed content once
+  the app is served over HTTPS.
+- `alt={`Poster of ${movie} movie`}` interpolated the whole object and rendered
+  `[object Object]`.
+- `StarRating` had `strokeWidth="{2}"` — the braces were inside the string, so
+  the empty stars were drawn with the wrong stroke.
+- `prop-types` was imported but never listed in `package.json`. It happened to
+  work locally because something else pulled it in.
+- `index.js` rendered a stray `<StarRating />` outside the app, with no
+  `onSetRating` prop. Clicking a star there crashed.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Not done yet
 
-### Making a Progressive Web App
+- The watched list is lost on refresh. It should go into `localStorage`,
+  probably behind a `useLocalStorageState` hook.
+- The fetch logic in `App` is long enough that it wants to be a `useMovies`
+  hook.
+- No tests.
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+## Built with
 
-### Advanced Configuration
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
-
-### Deployment
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
-
-### `npm run build` fails to minify
-
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Create React App, React 19, the OMDb API.
